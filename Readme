@@ -1,0 +1,10 @@
+Liste des bibliothèques utilisés :
+Pour la première méthode et celle que nous privilégions, nous avons utilisé :
+  - numpy
+  - panda
+  
+Pour la deuxième méthode, nous avons utilisé : 
+  - numpy
+  - panda
+  - TfIdfVectorizer de scikit-learn
+  - TfidfVectorizer de sklearn.feature_extraction.text
