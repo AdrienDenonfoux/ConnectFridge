@@ -130,5 +130,61 @@ metadata = pd.read_csv('train2.csv')
 #
 # print(get_recommendations('cream  of spinach soup'))
 
+import numpy as np
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import seaborn as sns
+import sys
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+df = pd.read_csv('input/recipe.csv')
+
+#on a tous les mots d'un phrase séparé
+#dTest['ingredients'] = dTest['ingredients'].apply(word_extract)
+def word_extract(string):
+    lwords = []
+    stri = "['" 		                                                #definit le carractère qui est au début et qu'on doit supprimer 
+    stri2 = "']"		                                                #definit le carractère qui est a la fin et qu'on doit supprimer
+    
+    lwords = string.split('\', \'') 		#sépare tous les mots délimité par: ', '
+    lwords[0] = lwords[0].replace(stri,"") 							# supprime caractère genant du début
+    lwords[len(lwords)-1] = lwords[len(lwords)-1].replace(stri2,"") # supprime caractère genant de la fin
+    
+    return lwords
+
+df['ingredients'] = df['ingredients'].apply(word_extract)
+
+df2 = df.head(50000)
+def recherche(stringContenant):
+    nbrContenu = 0
+    nbrEnPLusDansLaRecette = 0
+    
+    for i in range(0,len(tab2),1):
+        if(tab2[i] in stringContenant):
+            nbrContenu = nbrContenu + 1
+    #nbrEnPLusDansLaRecette = len(stringContenant)+1
+    return nbrContenu - nbrEnPLusDansLaRecette
+
+tab2 = ['water', 'salt', 'boiling potatoes', 'fresh spinach leaves', 'unsalted butter', 'coarse salt', 'fresh ground black pepper', 'nutmeg']
+
+tableauContenu2 = df2['ingredients'].apply(recherche)         #applique la fonction sur tout le df
+column2 = range(0,len(tableauContenu2),1)                     #prépare les index
+
+tableauContenu2 = np.c_[tableauContenu2,column2]               #on associe les résulats avec leur index
+tableauContenu2.view('i8,i8').sort(order=['f0'], axis = 0)
+print(tableauContenu2)
+
+for i in range(len(tableauContenu2)-10,len(tableauContenu2),1):
+    print(tableauContenu2[i])
+    
+print(tab2)
+print(df2['ingredients'].iloc[tableauContenu2[len(tableauContenu2)-1][1]])
+
+for i in range(0,len(tab2),1):
+        if(tab2[i] in df2['ingredients'].iloc[tableauContenu2[len(tableauContenu2)-2][1]]):
+          print(tab2[i] )
+
+
+
 print(metadata["ingredients"].iloc[31460])
 print(metadata["ingredients"].iloc[18])
