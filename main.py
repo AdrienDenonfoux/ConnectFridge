@@ -125,7 +125,15 @@ if (choixMethode == 1):
 	tableauContenu2.view('i8,i8').sort(order=['f0'], axis = 0)              # trie le tableau pour que les recettes contenant le plus d'ingrédients possédé ce retrouve de manière croissante  
 
 	for i in range(len(tableauContenu2)-10,len(tableauContenu2),1):         # affiche le top 10 des recettes 
-	    print(tableauContenu2[i], df2['name'].iloc[tableauContenu2[i][1]])
+	    #print(tableauContenu2[i], df2['name'].iloc[tableauContenu2[i][1]])
+			print('nom :', df2['name'].iloc[tableauContenu2[i][1]])
+    	print("\t", 'description :', df2['description'].iloc[tableauContenu2[i][1]])
+    	print("\t", 'différentes étapes :', df2['steps'].iloc[tableauContenu2[i][1]])
+			print("\t", 'temps de préparation :', df2['minutes'].iloc[tableauContenu2[i][1]], 'minutes')
+			print("\t", 'nombre d\'ingrédients utilisés du frigo :', tableauContenu2[i][0])
+			print("\t", 'nombre totale d\'ingrédients :', df2['n_ingredients'].iloc[tableauContenu2[i][1]])
+			print("\t",'nombre d\'ingredients en plus :',df2['n_ingredients'].iloc[tableauContenu2[i][1]]-tableauContenu2[i][0])
+			print("\n")  
 
     
 	"""
