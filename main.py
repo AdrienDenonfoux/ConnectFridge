@@ -1,5 +1,8 @@
+choixMethode = 1 #1 recherche d'ingrédients corespondants a ceux rentré , 0 recommandation de recette par rapport a une autre avec un problème de temps d'excusion 
+
 import pandas as pd
 import numpy as np
+
 # ----------------------------------------------------------------#
 # -------- Nettoyage et sauvegarde du DataFrame nettoyé --------- #
 # ----------------------------------------------------------------#
@@ -67,124 +70,133 @@ import numpy as np
 
 
 
+if (choixMethode == 1):
+	import seaborn as sns
+	import sys
+	import matplotlib.pyplot as plt
+	import seaborn as sns
 
-# -------- Division du fichier train.csv de 158 660 lignes en 50 000 lignes
+	df = pd.read_csv('input/recipe.csv')# a changer suivant le dataframe utilisé
 
-# metadata_train=metadata.head(50000)
-# metadata_train.to_csv("train2.csv", index=False)
+	# FONCTION WORD_EXTRACT
+	# prend en entré un string, qui est l'ensemble de tous les ingredients qui est donsidéré comme une phrase
+	# sépare les mots délimité par : ', '
+	# retourne un tableau composé d'ingredients
+	# fonction d'exemple pour utiliser : dTest['ingredients'] = dTest['ingredients'].apply(word_extract)
+	def word_extract(string):
+	    lwords = []
+	    stri = "['" 		                                                # definit le carractère qui est au début de chaque mots dans la liste d'ingredient et qu'on doit supprimer 
+	    stri2 = "']"		                                                # definit le carractère qui est a la fin de chaque mots dans la liste d'ingredient et qu'on doit supprimer
+	    
+	    lwords = string.split('\', \'')                                     # sépare tous les mots délimité par: ', '
+	    lwords[0] = lwords[0].replace(stri,"")                              # supprime caractère genant du début
+	    lwords[len(lwords)-1] = lwords[len(lwords)-1].replace(stri2,"")     # supprime caractère genant de la fin
+	    
+	    return lwords
 
-metadata = pd.read_csv('train2.csv')
+	df['ingredients'] = df['ingredients'].apply(word_extract)               # remplacement de la phrase d'ingredient par une liste d'ingrediant
 
-# -------- Extraction grâce à sklearn
+	#a enlever si on ouvre un ficher train ou test et pas le fichier entier
+	df2 = df.tail(67997)                                                    # choix de la partie train ou test, 
 
-# #Import TfIdfVectorizer from scikit-learn
-# from sklearn.feature_extraction.text import TfidfVectorizer
-#
-# #Define a TF-IDF Vectorizer Object. Remove all english stop words such as 'the', 'a'
-# tfidf = TfidfVectorizer(stop_words='english')
-#
-#
-# #Construct the required TF-IDF matrix by fitting and transforming the data
-# tfidf_matrix = tfidf.fit_transform(metadata['ingredients'])
-#
-# #Output the shape of tfidf_matrix
-# print(tfidf_matrix.shape)
-#
-# ingredient=tfidf.get_feature_names_out()
-#
-# # --------- Calcule des similarité
-#
-# # Import linear_kernel
-# from sklearn.metrics.pairwise import linear_kernel
-#
-# # Compute the cosine similarity matrix
-# cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
-#
-# print(cosine_sim.shape)
-# print(cosine_sim[1])
-#
-#
-#
-# indices = pd.Series(metadata.index, index=metadata['name']).drop_duplicates()
-# print(indices[:10])
-#
-# # Function that takes the title of a recipe as input and produces the most similar recipes.
-# def get_recommendations(name, cosine_sim=cosine_sim):
-#     # Get the index of the recipe that matches the title
-#     idx = indices[name]
-#
-#     # Get the pairwsie similarity scores of all recipes with that recipe
-#     sim_scores = list(enumerate(cosine_sim[idx]))
-#
-#     # Sort the recipes based on the similarity scores
-#     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-#
-#     # Get the scores of the 10 most similar recettes
-#     sim_scores = sim_scores[1:11]
-#
-#     # Get the movie indices
-#     recipe_indices = [i[0] for i in sim_scores]
-#
-#     # Return the top 10 most similar movies
-#     return metadata['name'].iloc[recipe_indices]
-#
-# print(get_recommendations('cream  of spinach soup'))
+	# FONCTION RECHERCHE
+	# prend en entré un string ou un tableau (ca fonctionne avec les deux) d'ingredient, ici on utilise un tableau ce qui nous permet de trouver le mot exact et pas un qui se rapproche 
+	# elle recherche si les ingredients rentré dans ingrediantsPossede[] coresponde avec les ingredients de recettes en paramettre  
+	# elle retourne le nombre d' ingrediantsPossede[] contenu dans la recette
+	def recherche(tabStringContenant):
+	    nbrContenu = 0
+	    nbrEnPLusDansLaRecette = 0
+	    
+	    for i in range(0,len(ingrediantsPossede),1):
+	        if(ingrediantsPossede[i] in tabStringContenant):
+	            nbrContenu = nbrContenu + 1
+	    #nbrEnPLusDansLaRecette = len(tabStringContenant)+1
+	    return nbrContenu - nbrEnPLusDansLaRecette
 
-import numpy as np
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
-import seaborn as sns
-import sys
-import matplotlib.pyplot as plt
-import seaborn as sns
+	#Liste d'ingredients possédé
+	ingrediantsPossede = ['water', 'salt', 'boiling potatoes', 'fresh spinach leaves', 'unsalted butter', 'coarse salt', 'fresh ground black pepper', 'nutmeg']
 
-df = pd.read_csv('input/recipe.csv')
+	tableauContenu2 = df2['ingredients'].apply(recherche)                   # applique la fonction sur tout le dataframe, c'est donc un tableau de note
+	column2 = range(0,len(tableauContenu2),1)                               # création de tabbleau qui corresponde au index des recettes 
 
-#on a tous les mots d'un phrase séparé
-#dTest['ingredients'] = dTest['ingredients'].apply(word_extract)
-def word_extract(string):
-    lwords = []
-    stri = "['" 		                                                #definit le carractère qui est au début et qu'on doit supprimer 
-    stri2 = "']"		                                                #definit le carractère qui est a la fin et qu'on doit supprimer
+	tableauContenu2 = np.c_[tableauContenu2,column2]                        # on associe les résulats des recettes avec leur index, 
+	tableauContenu2.view('i8,i8').sort(order=['f0'], axis = 0)              # trie le tableau pour que les recettes contenant le plus d'ingrédients possédé ce retrouve de manière croissante  
+
+	for i in range(len(tableauContenu2)-10,len(tableauContenu2),1):         # affiche le top 10 des recettes 
+	    print(tableauContenu2[i], df2['name'].iloc[tableauContenu2[i][1]])
+
     
-    lwords = string.split('\', \'') 		#sépare tous les mots délimité par: ', '
-    lwords[0] = lwords[0].replace(stri,"") 							# supprime caractère genant du début
-    lwords[len(lwords)-1] = lwords[len(lwords)-1].replace(stri2,"") # supprime caractère genant de la fin
-    
-    return lwords
+	"""
+	print(tab2)                                                                 # tester les ressemblences
+	print(df2['ingredients'].iloc[tableauContenu2[len(tableauContenu2)-1][1]])  # tester les ressemblences
 
-df['ingredients'] = df['ingredients'].apply(word_extract)
+	for i in range(0,len(tab2),1):                                              # affichage des ingrédients retenu, pour vérifier.
+	        if(tab2[i] in df2['ingredients'].iloc[tableauContenu2[len(tableauContenu2)-1][1]]):
+	          print(tab2[i] )
+	""" 
+else:
+	# -------- Division du fichier train.csv de 158 660 lignes en 50 000 lignes
 
-df2 = df.head(50000)
-def recherche(stringContenant):
-    nbrContenu = 0
-    nbrEnPLusDansLaRecette = 0
-    
-    for i in range(0,len(tab2),1):
-        if(tab2[i] in stringContenant):
-            nbrContenu = nbrContenu + 1
-    #nbrEnPLusDansLaRecette = len(stringContenant)+1
-    return nbrContenu - nbrEnPLusDansLaRecette
+	# metadata_train=metadata.head(50000)
+	# metadata_train.to_csv("train2.csv", index=False)
 
-tab2 = ['water', 'salt', 'boiling potatoes', 'fresh spinach leaves', 'unsalted butter', 'coarse salt', 'fresh ground black pepper', 'nutmeg']
+	metadata = pd.read_csv('train2.csv')
 
-tableauContenu2 = df2['ingredients'].apply(recherche)         #applique la fonction sur tout le df
-column2 = range(0,len(tableauContenu2),1)                     #prépare les index
+	# -------- Extraction grâce à sklearn
 
-tableauContenu2 = np.c_[tableauContenu2,column2]               #on associe les résulats avec leur index
-tableauContenu2.view('i8,i8').sort(order=['f0'], axis = 0)
-print(tableauContenu2)
+	# #Import TfIdfVectorizer from scikit-learn
+	# from sklearn.feature_extraction.text import TfidfVectorizer
+	#
+	# #Define a TF-IDF Vectorizer Object. Remove all english stop words such as 'the', 'a'
+	# tfidf = TfidfVectorizer(stop_words='english')
+	#
+	#
+	# #Construct the required TF-IDF matrix by fitting and transforming the data
+	# tfidf_matrix = tfidf.fit_transform(metadata['ingredients'])
+	#
+	# #Output the shape of tfidf_matrix
+	# print(tfidf_matrix.shape)
+	#
+	# ingredient=tfidf.get_feature_names_out()
+	#
+	# # --------- Calculs des similaritées
+	#
+	# # Import linear_kernel
+	# from sklearn.metrics.pairwise import linear_kernel
+	#
+	# # Compute the cosine similarity matrix
+	# cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+	#
+	# print(cosine_sim.shape)
+	# print(cosine_sim[1])
+	#
+	#
+	#
+	# indices = pd.Series(metadata.index, index=metadata['name']).drop_duplicates()
+	# print(indices[:10])
+	#
+	# # Function that takes the title of a recipe as input and produces the most similar recipes.
+	# def get_recommendations(name, cosine_sim=cosine_sim):
+	#     # Get the index of the recipe that matches the title
+	#     idx = indices[name]
+	#
+	#     # Get the pairwsie similarity scores of all recipes with that recipe
+	#     sim_scores = list(enumerate(cosine_sim[idx]))
+	#
+	#     # Sort the recipes based on the similarity scores
+	#     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+	#
+	#     # Get the scores of the 10 most similar recipes
+	#     sim_scores = sim_scores[1:11]
+	#
+	#     # Get the recipe indices
+	#     recipe_indices = [i[0] for i in sim_scores]
+	#
+	#     # Return the top 10 most similar recipes
+	#     return metadata['name'].iloc[recipe_indices]
+	#
+	# print(get_recommendations('cream  of spinach soup'))
 
-for i in range(len(tableauContenu2)-10,len(tableauContenu2),1):
-    print(tableauContenu2[i])
-    
-print(tab2)
-print(df2['ingredients'].iloc[tableauContenu2[len(tableauContenu2)-1][1]])
+	#print(metadata["ingredients"].iloc[31460])
+	#print(metadata["ingredients"].iloc[18])
 
-for i in range(0,len(tab2),1):
-        if(tab2[i] in df2['ingredients'].iloc[tableauContenu2[len(tableauContenu2)-2][1]]):
-          print(tab2[i] )
-
-
-
-print(metadata["ingredients"].iloc[31460])
-print(metadata["ingredients"].iloc[18])
