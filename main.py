@@ -1,4 +1,5 @@
 # lien de la BDD : https://www.kaggle.com/shuyangli94/food-com-recipes-and-user-interactions/download
+#ou : https://www.kaggle.com/shuyangli94/food-com-recipes-and-user-interactions
 choixMethode = 1 #1 recherche d'ingrédients corespondants a ceux rentré , 0 recommandation de recette par rapport a une autre avec un problème de temps d'excusion 
 
 import pandas as pd
