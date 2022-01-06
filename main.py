@@ -126,14 +126,7 @@ if (choixMethode == 1):
 
 	for i in range(len(tableauContenu2)-10,len(tableauContenu2),1):         # affiche le top 10 des recettes 
 	    #print(tableauContenu2[i], df2['name'].iloc[tableauContenu2[i][1]])
-			print('nom :', df2['name'].iloc[tableauContenu2[i][1]])
-    	print("\t", 'description :', df2['description'].iloc[tableauContenu2[i][1]])
-    	print("\t", 'différentes étapes :', df2['steps'].iloc[tableauContenu2[i][1]])
-			print("\t", 'temps de préparation :', df2['minutes'].iloc[tableauContenu2[i][1]], 'minutes')
-			print("\t", 'nombre d\'ingrédients utilisés du frigo :', tableauContenu2[i][0])
-			print("\t", 'nombre totale d\'ingrédients :', df2['n_ingredients'].iloc[tableauContenu2[i][1]])
-			print("\t",'nombre d\'ingredients en plus :',df2['n_ingredients'].iloc[tableauContenu2[i][1]]-tableauContenu2[i][0])
-			print("\n")  
+			print('nom :', df2['name'].iloc[tableauContenu2[i][1]],"\n",'description :', df2['description'].iloc[tableauContenu2[i][1]],"\n",'différentes étapes :', df2['steps'].iloc[tableauContenu2[i][1]],"\n",'temps de préparation :', df2['minutes'].iloc[tableauContenu2[i][1]], 'minutes',"\n",'nombre d\'ingrédients utilisés du frigo :', tableauContenu2[i][0],"\n",'nombre totale d\'ingrédients :', df2['n_ingredients'].iloc[tableauContenu2[i][1]],"\n",'nombre d\'ingredients en plus :',df2['n_ingredients'].iloc[tableauContenu2[i][1]]-tableauContenu2[i][0],"\n")
 
     
 	"""
